@@ -28,7 +28,8 @@ public class IncluderController {
 	}
 	
 	@RequestMapping(value = "/header", method = RequestMethod.GET)
-	public String header() {
+	public String header(Model model) {
+		model.addAttribute("link", Util.link);
 		return "admin/inc/header";
 	}
 	

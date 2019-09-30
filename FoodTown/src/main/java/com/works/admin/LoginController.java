@@ -23,23 +23,19 @@ public class LoginController {
 	
 	DB db = new DB();
 
-	// @RequestMapping("/admin") -> bu gövde altındaki tüm yönlenmeler /admin almak
-	// zorundadır.
-
 	// login page create
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String login() {
 		return "admin/login";
 	}
 
-	// admin login fnc
+	// admin login function
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String adminLogin( 
-			Admin adm, 
-			Model model, 
-			HttpServletRequest req, 
-			@RequestParam(defaultValue = "off") String remember,
-			HttpServletResponse res) {
+	public String adminLogin(Admin adm, Model model, 							  
+							 @RequestParam(defaultValue = "off") String remember,
+							 HttpServletRequest req,
+							 HttpServletResponse res) {
+		
 		try {
 			String query = "select * from admin where amail = ? and apass = ?";
 			PreparedStatement pre = db.connect(query);
@@ -47,15 +43,13 @@ public class LoginController {
 			pre.setString(2, Util.MD5(adm.getApass()));
 			ResultSet rs = pre.executeQuery();
 			if (rs.next()) {
-				// kullanıcı oturumu açabilir.
-				// session yaratılıyor
 				adm.setAid(rs.getInt("aid"));
 				adm.setAname(rs.getString("aname"));
 				req.getSession().setAttribute("aid", adm);
 				
-				// remember check ?
+				// remember check
 				if(remember.equals("on")) {
-					Cookie cookie = new Cookie("user_cookie", ""+rs.getInt("aid"));
+					Cookie cookie = new Cookie("adm_cookie", ""+rs.getInt("aid"));
 					cookie.setMaxAge(60*60*24);
 					res.addCookie(cookie);
 				}
@@ -63,11 +57,11 @@ public class LoginController {
 				
 				return "redirect:/admin/dashboard";
 			} else {
-				model.addAttribute("error", "Kullan�c� ad� yada �ifre hatal�");
+				model.addAttribute("error", "Email or password is wrong!");
 			}
 		} catch (Exception e) {
 			System.err.println("login error : " + e);
-			model.addAttribute("error", "Sistem hatası oluştu!");
+			model.addAttribute("error", "System error!");
 		}
 		return "admin/login";
 	}
@@ -77,7 +71,8 @@ public class LoginController {
 	@RequestMapping(value = "/exit", method = RequestMethod.GET)
 	public String exit(HttpServletRequest req, HttpServletResponse res) {
 		
-		Cookie cookie = new Cookie("user_cookie", "");
+		// cookie end
+		Cookie cookie = new Cookie("adm_cookie", "");
 		cookie.setMaxAge(0);
 		res.addCookie(cookie);
 		

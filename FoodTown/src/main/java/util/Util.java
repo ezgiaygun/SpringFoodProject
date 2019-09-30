@@ -3,6 +3,8 @@ package util;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import com.works.foodtown.UserIncluderController;
+
 public class Util {
 	
 	public static String link = "dashboard";
@@ -13,7 +15,7 @@ public class Util {
 		if(req.getCookies() != null) {
 			Cookie[] arr = req.getCookies();
 			for (Cookie item : arr) {
-				if(item.getName().equals("user_cookie")) {
+				if(item.getName().equals("adm_cookie")) {
 					String aid = item.getValue();
 					req.getSession().setAttribute("aid", aid);
 					break;
@@ -31,8 +33,43 @@ public class Util {
 			}else {
 				link = page;
 				return "admin/"+page;
-			}
+			}		
 			
+		}
+	}
+	
+	public static String userControl(HttpServletRequest req, String page) {
+		
+		// cookie control
+		if(req.getCookies() != null) {
+			Cookie[] arr = req.getCookies();
+			for (Cookie item : arr) {
+				if(item.getName().equals("user_cookie")) {
+					String cid = item.getValue();
+					req.getSession().setAttribute("cid", cid);
+					break;
+				}
+			}
+		}
+		
+		boolean statu = req.getSession().getAttribute("cid") == null;
+		if(statu) {
+			if (page.equals("login") || page.equals("register")) {
+				return "user/"+page;
+			}
+			UserIncluderController.isLogin = false;
+			return "redirect:/user/login";
+		}else {
+			if (page.equals("login") || page.equals("register")) {
+				return "redirect:/";
+			}
+			if (page.contains("redirect:")) {
+				link = page;
+				return page;
+			}else {
+				link = page;
+				return "user/"+page;
+			}		
 			
 		}
 	}
